@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
 
     private void SpawnPlayer() 
     {
-       Player = Instantiate(PlayerPrefab, new Vector3(0, 2, 0), Quaternion.identity);
+       Player = Instantiate(PlayerPrefab, new Vector3(0, 3, 0), Quaternion.identity);
     }
     private void SpawnCamera() 
     {
