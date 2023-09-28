@@ -8,6 +8,7 @@ public class CarController : MonoBehaviour
     private float horizontalInput, verticalInput;
     private float currentSteerAngle, currentbreakForce;
     private bool isBreaking;
+    private bool isDrifting;
 
     // Settings
     [SerializeField] private float motorForce, breakForce, maxSteerAngle;
@@ -22,6 +23,7 @@ public class CarController : MonoBehaviour
 
     public Vector3 com;
     public Rigidbody rb;
+    public float AntiRoll;
 
     private void Start()
     {
@@ -34,6 +36,8 @@ public class CarController : MonoBehaviour
         GetInput();
         HandleMotor();
         HandleSteering();
+        ApplyAntiRoll();
+        ApplyTireFriction();
         UpdateWheels();
     }
 
@@ -47,6 +51,9 @@ public class CarController : MonoBehaviour
 
         // Breaking Input
         isBreaking = Input.GetKey(KeyCode.Space);
+        
+        // Drifiting Input
+        isDrifting = Input.GetMouseButton(0); // 0 corresponds to the left mouse button
     }
 
     private void HandleMotor()
@@ -70,6 +77,57 @@ public class CarController : MonoBehaviour
         currentSteerAngle = maxSteerAngle * horizontalInput;
         frontLeftWheelCollider.steerAngle = currentSteerAngle;
         frontRightWheelCollider.steerAngle = currentSteerAngle;
+    }
+
+    private void ApplyAntiRoll() 
+    {
+        WheelHit hit;
+        float travelL = 1.0f;
+        float travelR = 1.0f;
+
+        bool groundedL = frontLeftWheelCollider.GetGroundHit(out hit);
+        if (groundedL)
+            travelL = (-frontLeftWheelCollider.transform.InverseTransformPoint(hit.point).y - frontLeftWheelCollider.radius) / frontLeftWheelCollider.suspensionDistance;
+
+        bool groundedR = frontRightWheelCollider.GetGroundHit(out hit);
+        if (groundedR)
+            travelR = (-frontRightWheelCollider.transform.InverseTransformPoint(hit.point).y - frontRightWheelCollider.radius) / frontRightWheelCollider.suspensionDistance;
+
+       float antiRollForce = (travelL - travelR) * AntiRoll;
+
+        if (groundedL)
+            rb.AddForceAtPosition(frontLeftWheelCollider.transform.up * -antiRollForce,
+                  frontLeftWheelCollider.transform.position);
+        if (groundedR)
+            rb.AddForceAtPosition(frontRightWheelCollider.transform.up * antiRollForce,
+                   frontRightWheelCollider.transform.position);
+    }
+
+    private void ApplyTireFriction() 
+    {
+        float frictionStiffness = 1.0f;
+
+        Debug.Log(isDrifting);
+
+        if (isDrifting)
+        {
+            frictionStiffness = 0.3f;
+        }
+
+        WheelFrictionCurve frictionFL = frontLeftWheelCollider.sidewaysFriction;
+        WheelFrictionCurve frictionFR = frontRightWheelCollider.sidewaysFriction;
+        WheelFrictionCurve frictionRL = rearLeftWheelCollider.sidewaysFriction;
+        WheelFrictionCurve frictionRR = frontRightWheelCollider.sidewaysFriction;
+
+        frictionFL.stiffness = frictionStiffness;
+        frictionFR.stiffness = frictionStiffness;
+        frictionRL.stiffness = frictionStiffness;
+        frictionRR.stiffness = frictionStiffness;
+
+        frontLeftWheelCollider.sidewaysFriction = frictionFL;
+        frontRightWheelCollider.sidewaysFriction = frictionFR;
+        rearLeftWheelCollider.sidewaysFriction = frictionRL;
+        rearRightWheelCollider.sidewaysFriction = frictionRR;
     }
 
     private void UpdateWheels()
