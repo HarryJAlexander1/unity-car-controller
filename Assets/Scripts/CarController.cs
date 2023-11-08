@@ -21,9 +21,14 @@ public class CarController : MonoBehaviour
     [SerializeField] private Transform frontLeftWheelTransform, frontRightWheelTransform;
     [SerializeField] private Transform rearLeftWheelTransform, rearRightWheelTransform;
 
+    [SerializeField] private GameObject frontLeftWheelEffectObj, frontRightWheelEffectObj, rearLeftWheelEffectObj, rearRightWheelEffectObj;
+
     public Vector3 com;
     public Rigidbody rb;
-    public float AntiRoll;
+    public float antiRoll;
+
+    public static int currentSpeed;
+    public static int maxSpeed;
 
     private void Start()
     {
@@ -39,6 +44,7 @@ public class CarController : MonoBehaviour
         ApplyAntiRoll();
         ApplyTireFriction();
         UpdateWheels();
+
     }
 
     private void GetInput()
@@ -56,11 +62,13 @@ public class CarController : MonoBehaviour
         isDrifting = Input.GetMouseButton(0); // 0 corresponds to the left mouse button
     }
 
+
     private void HandleMotor()
     {
         frontLeftWheelCollider.motorTorque = verticalInput * motorForce;
         frontRightWheelCollider.motorTorque = verticalInput * motorForce;
         currentbreakForce = isBreaking ? breakForce : 0f;
+
         ApplyBreaking();
     }
 
@@ -93,7 +101,7 @@ public class CarController : MonoBehaviour
         if (groundedR)
             travelR = (-frontRightWheelCollider.transform.InverseTransformPoint(hit.point).y - frontRightWheelCollider.radius) / frontRightWheelCollider.suspensionDistance;
 
-       float antiRollForce = (travelL - travelR) * AntiRoll;
+       float antiRollForce = (travelL - travelR) * antiRoll;
 
         if (groundedL)
             rb.AddForceAtPosition(frontLeftWheelCollider.transform.up * -antiRollForce,
@@ -107,7 +115,7 @@ public class CarController : MonoBehaviour
     {
         float frictionStiffness = 1.0f;
 
-        Debug.Log(isDrifting);
+       // Debug.Log(isDrifting);
 
         if (isDrifting)
         {
@@ -136,6 +144,8 @@ public class CarController : MonoBehaviour
         UpdateSingleWheel(frontRightWheelCollider, frontRightWheelTransform);
         UpdateSingleWheel(rearRightWheelCollider, rearRightWheelTransform);
         UpdateSingleWheel(rearLeftWheelCollider, rearLeftWheelTransform);
+
+        ApplyWheelEffects();
     }
 
     private void UpdateSingleWheel(WheelCollider wheelCollider, Transform wheelTransform)
@@ -146,4 +156,20 @@ public class CarController : MonoBehaviour
         wheelTransform.rotation = rot;
         wheelTransform.position = pos;
     }
+
+    private void ApplyWheelEffects()
+    {
+        if (isBreaking || isDrifting && horizontalInput != 0)
+        {
+            rearLeftWheelEffectObj.GetComponentInChildren<TrailRenderer>().emitting = true;
+            rearRightWheelEffectObj.GetComponentInChildren<TrailRenderer>().emitting = true;
+        }
+        else 
+        {
+            rearLeftWheelEffectObj.GetComponentInChildren<TrailRenderer>().emitting = false;
+            rearRightWheelEffectObj.GetComponentInChildren<TrailRenderer>().emitting = false;
+        }
+    }
+
+
 }
