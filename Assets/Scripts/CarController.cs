@@ -22,6 +22,7 @@ public class CarController : MonoBehaviour
     [SerializeField] private Transform rearLeftWheelTransform, rearRightWheelTransform;
 
     [SerializeField] private GameObject frontLeftWheelEffectObj, frontRightWheelEffectObj, rearLeftWheelEffectObj, rearRightWheelEffectObj;
+    [SerializeField] private ParticleSystem frontLeftParticleSystem, frontRightParticleSystem, rearLeftParticleSystem, rearRightParticleSystem;
 
     public Vector3 com;
     public Rigidbody rb;
@@ -159,15 +160,21 @@ public class CarController : MonoBehaviour
 
     private void ApplyWheelEffects()
     {
-        if (isBreaking || isDrifting && horizontalInput != 0)
+        if (isBreaking && rb.velocity.magnitude > 10f || isDrifting && horizontalInput != 0)
         {
             rearLeftWheelEffectObj.GetComponentInChildren<TrailRenderer>().emitting = true;
             rearRightWheelEffectObj.GetComponentInChildren<TrailRenderer>().emitting = true;
+
+            rearLeftParticleSystem.Emit(1);
+            rearRightParticleSystem.Emit(1);
         }
         else 
         {
             rearLeftWheelEffectObj.GetComponentInChildren<TrailRenderer>().emitting = false;
             rearRightWheelEffectObj.GetComponentInChildren<TrailRenderer>().emitting = false;
+
+            rearLeftParticleSystem.Emit(0);
+            rearRightParticleSystem.Emit(0);
         }
     }
 
