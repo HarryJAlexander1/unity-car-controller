@@ -9,7 +9,10 @@ public class CarAudio : MonoBehaviour
     private float currentSpeed;
 
     private Rigidbody carRb;
-    private AudioSource carAudio;
+    private AudioSource engineAudio;
+    private AudioSource tireAudio;
+    [SerializeField] private GameObject tireScreechengineAudio;
+    private CarController carController;
 
     public float minPitch;
     public float maxPitch;
@@ -17,13 +20,16 @@ public class CarAudio : MonoBehaviour
 
     void Start()
     {
-        carAudio = GetComponent<AudioSource>();
+        engineAudio = GetComponent<AudioSource>();
         carRb = GetComponent<Rigidbody>();
+        carController = GetComponent<CarController>();
+        tireAudio = tireScreechengineAudio.GetComponent<AudioSource>();
     }
 
     void Update()
     {
         EngineSound();
+        TireScreech();
     }
 
     void EngineSound()
@@ -33,17 +39,35 @@ public class CarAudio : MonoBehaviour
 
         if (currentSpeed < minSpeed)
         {
-            carAudio.pitch = minPitch;
+            engineAudio.pitch = minPitch;
         }
 
         if (currentSpeed > minSpeed && currentSpeed < maxSpeed)
         {
-            carAudio.pitch = minPitch + pitchFromCar;
+            engineAudio.pitch = minPitch + pitchFromCar;
         }
 
         if (currentSpeed > maxSpeed)
         {
-            carAudio.pitch = maxPitch;
+            engineAudio.pitch = maxPitch;
+        }
+    }
+
+    void TireScreech()
+    {
+        if (carController.isBreaking && carRb.velocity.magnitude > 10f || carController.isDrifting && carController.horizontalInput != 0 && carRb.velocity.magnitude > 10f)
+        {
+            if (!tireAudio.isPlaying) 
+            {
+               tireAudio.Play();    
+            }
+            Debug.Log("tire screech played" + tireAudio.isPlaying);
+        }
+        else
+        {
+            if (tireAudio.isPlaying) { tireAudio.Stop(); }
+            //tireAudio.Stop();
+            Debug.Log("tire screech stopped" + tireAudio.isPlaying);
         }
     }
 }
