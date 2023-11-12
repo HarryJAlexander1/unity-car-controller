@@ -5,10 +5,10 @@ using UnityEngine;
 
 public class CarController : MonoBehaviour
 {
-    private float horizontalInput, verticalInput;
+    public float horizontalInput, verticalInput;
     private float currentSteerAngle, currentbreakForce;
-    private bool isBreaking;
-    private bool isDrifting;
+    public bool isBreaking;
+    public bool isDrifting;
 
     // Settings
     [SerializeField] private float motorForce, breakForce, maxSteerAngle;
@@ -33,6 +33,8 @@ public class CarController : MonoBehaviour
 
     private void Start()
     {
+        isBreaking = false;
+        isDrifting = false;
         rb = GetComponent<Rigidbody>();
         rb.centerOfMass = com;
     }
@@ -160,13 +162,16 @@ public class CarController : MonoBehaviour
 
     private void ApplyWheelEffects()
     {
-        if (isBreaking && rb.velocity.magnitude > 10f || isDrifting && horizontalInput != 0)
+        if (isBreaking && rb.velocity.magnitude > 10f || isDrifting && horizontalInput != 0 && rb.velocity.magnitude > 10f)
         {
             rearLeftWheelEffectObj.GetComponentInChildren<TrailRenderer>().emitting = true;
             rearRightWheelEffectObj.GetComponentInChildren<TrailRenderer>().emitting = true;
 
             rearLeftParticleSystem.Emit(1);
             rearRightParticleSystem.Emit(1);
+
+            // play tire audio
+
         }
         else 
         {
