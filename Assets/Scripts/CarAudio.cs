@@ -61,13 +61,10 @@ public class CarAudio : MonoBehaviour
             {
                tireAudio.Play();    
             }
-            Debug.Log("tire screech played" + tireAudio.isPlaying);
         }
         else
         {
             if (tireAudio.isPlaying) { tireAudio.Stop(); }
-            //tireAudio.Stop();
-            Debug.Log("tire screech stopped" + tireAudio.isPlaying);
         }
     }
 }

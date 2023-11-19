@@ -23,6 +23,7 @@ public class CarController : MonoBehaviour
 
     [SerializeField] private GameObject frontLeftWheelEffectObj, frontRightWheelEffectObj, rearLeftWheelEffectObj, rearRightWheelEffectObj;
     [SerializeField] private ParticleSystem frontLeftParticleSystem, frontRightParticleSystem, rearLeftParticleSystem, rearRightParticleSystem;
+    [SerializeField] private ParticleSystem rearLeftCarLight, rearRightCarLight, rearLeftCarLightFlare, rearRightCarlightFlare;
 
     public Vector3 com;
     public Rigidbody rb;
@@ -47,6 +48,7 @@ public class CarController : MonoBehaviour
         ApplyAntiRoll();
         ApplyTireFriction();
         UpdateWheels();
+        ApplyCarLights();
 
     }
 
@@ -170,8 +172,6 @@ public class CarController : MonoBehaviour
             rearLeftParticleSystem.Emit(1);
             rearRightParticleSystem.Emit(1);
 
-            // play tire audio
-
         }
         else 
         {
@@ -180,6 +180,27 @@ public class CarController : MonoBehaviour
 
             rearLeftParticleSystem.Emit(0);
             rearRightParticleSystem.Emit(0);
+        }
+    }
+
+    private void ApplyCarLights() 
+    {
+        if (isBreaking) 
+        {
+            if (!rearRightCarLight.isPlaying && !rearRightCarLight.isPlaying && !rearRightCarlightFlare.isPlaying && !rearLeftCarLightFlare.isPlaying) 
+            {
+                rearLeftCarLight.Play();
+                rearRightCarLight.Play();
+                rearLeftCarLightFlare.Play();
+                rearRightCarlightFlare.Play();
+            } 
+        }
+        else 
+        {
+            rearLeftCarLight.Clear();
+            rearRightCarLight.Clear();
+            rearLeftCarLightFlare.Clear();
+            rearRightCarlightFlare.Clear();
         }
     }
 
