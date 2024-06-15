@@ -9,9 +9,9 @@
 
 #### Visual
 
-1. Add car break lights
+1. Add car brake lights
 
 #### Controls
 
-1. Make acceleration / deacceleration more responsive
+1. Make acceleration/deacceleration more responsive
 2. Improvements to drifting
